@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fashion House</title>
+<style>
+:root{--bg:#faf7f2;--surface:#fff;--text:#1d1b19;--muted:#6f6a63;--line:#e8e2d8;--accent:#b5543a;--accent-text:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#171513;--surface:#221f1c;--text:#f3eee7;--muted:#a39c92;--line:#35302b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif;padding:env(safe-area-inset-top,0) 0 76px}
+button,input,select{font:inherit;color:inherit}
+button,input,select,.chip,.price,.pill{font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);z-index:5}
+.bar{max-width:1100px;margin:auto;display:flex;align-items:center;gap:8px;padding:12px 16px}
+.logo{font-size:1.4rem;font-weight:700;flex:1}.logo span{color:var(--accent)}
+.ib{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 11px;cursor:pointer;position:relative}
+.badge{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--accent-text);border-radius:99px;font-size:.7rem;padding:1px 6px}
+main{max-width:1100px;margin:auto;padding:0 16px}
+.hero{margin:18px 0;padding:28px 22px;border-radius:18px;background:linear-gradient(135deg,var(--accent),#2b2420);color:#fff}
+.hero h1{margin:0 0 6px;font-size:1.7rem}.hero p{margin:0;opacity:.9}
+.note{display:none;margin:12px 0;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--accent);font-family:system-ui,sans-serif;font-size:.9rem}
+.search{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:6px 0 12px}
+.row{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+.chip{white-space:nowrap;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 14px;cursor:pointer;font-size:.9rem}
+.chip.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+h2{font-size:1.2rem;margin:22px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer}
+.pic{height:120px;display:grid;place-items:center;font-size:3rem}
+.info{padding:10px 12px 12px}.info b{display:block;font-size:.95rem}
+.store,small{color:var(--muted);font-size:.8rem}.price{font-weight:700;margin-top:4px}
+.stores{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.st{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.st b{display:block}
+.pill{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);vertical-align:middle}
+.btn{background:var(--accent);color:var(--accent-text);border:0;border-radius:10px;padding:11px 16px;cursor:pointer;width:100%;font-weight:600}
+.btn.alt{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.gap{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet.open{display:flex}
+.panel{background:var(--bg);width:100%;max-width:520px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
+.panel label{display:block;margin:10px 0 4px;font-size:.85rem;color:var(--muted)}
+.panel input,.panel select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.line{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:8px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));z-index:10}
+nav button{background:none;border:0;font-size:.72rem;color:var(--muted);cursor:pointer}
+nav button b{display:block;font-size:1.2rem}
+@media(min-width:700px){nav{display:none}body{padding-bottom:20px}.sheet{align-items:center}.panel{border-radius:18px}}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:24px}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="logo" id="logo"></div>
+  <button class="ib" onclick="show('orders')" aria-label="Orders">📦</button>
+  <button class="ib" onclick="show('store')" aria-label="Sell on this site">🏪</button>
+  <button class="ib" onclick="show('account')" aria-label="Account">👤</button>
+  <button class="ib" id="admBtn" style="display:none" onclick="show('admin')" aria-label="Admin">🛡️</button>
+  <button class="ib" onclick="show('cart')" aria-label="Cart">🛍️<span class="badge" id="count">0</span></button>
+</div></header>
+<main>
+  <div class="note" id="note"></div>
+  <section class="hero"><h1 id="tag"></h1><p id="sub"></p></section>
+  <input class="search" id="q" placeholder="Search fabrics, bags, shoes, accessories…" oninput="render()">
+  <div class="row" id="cats"></div>
+  <div class="row" id="storeChips"></div>
+  <h2>Featured items</h2>
+  <div class="grid" id="grid"></div>
+  <h2>Our stores</h2>
+  <div class="stores" id="stores"></div>
+</main>
+<footer id="foot"></footer>
+<nav>
+  <button onclick="closeSheet();scrollTo({top:0,behavior:'smooth'})"><b>🏠</b>Home</button>
+  <button onclick="show('cart')"><b>🛍️</b>Cart</button>
+  <button onclick="show('orders')"><b>📦</b>Orders</button>
+  <button onclick="show('store')"><b>🏪</b>Sell</button>
+  <button onclick="show('account')"><b>👤</b>Account</button>
+</nav>
+<div class="sheet" id="sheet" onclick="if(event.target===this)closeSheet()"><div class="panel" id="sheetBody"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* ===== 1. CONNECT TO YOUR BACKEND (Supabase > Project Settings > API) ===== */
+const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR-ANON-KEY";   // the public "anon" key is safe in the browser; NEVER put the service_role key here
+
+/* ===== 2. CUSTOMIZE YOUR BRAND ===== */
+const BRAND = {
+  name: "Fashion House",
+  tagline: "Everything your fashion business needs",
+  sub: "Browse fabrics, accessories and ready-to-wear from trusted stores.",
+  accent: "#b5543a", currency: "₦",
+  footer: "© Fashion House. All rights reserved."
+};
+const BANKS = [["044","Access Bank"],["058","GTBank"],["011","First Bank"],["033","UBA"],["057","Zenith Bank"],["221","Stanbic IBTC"],["070","Fidelity Bank"],["032","Union Bank"],["035","Wema Bank"],["232","Sterling Bank"],["076","Polaris Bank"],["214","FCMB"]]; // verify codes against Paystack's bank list
+/* ======================================================================== */
+
+const STORES_CAN_REFUND = false;   // keep in step with the ALLOW_STORE_REFUNDS secret
+const DEMO = SUPABASE_URL.includes("YOUR-PROJECT");
+const sb = DEMO ? null : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const DEMO_DATA = {
+  cats: ["Fabrics","Bags","Shoes","Accessories"].map((n,i) => ({id:i+1, name:n})),
+  stores: [{id:"s1",name:"Ankara Palace",area:"Balogun, Lagos",phone:"0800 000 0001",whatsapp:"",status:"approved"},{id:"s2",name:"Kano Leather Works",area:"Sabon Gari, Kano",phone:"0800 000 0002",whatsapp:"",status:"approved"}],
+  products: [
+    {id:"p1",store:"s1",cat:"Fabrics",name:"Ankara Wax Print (6 yards)",desc:"Vibrant cotton wax print.",price:12500,stock:20,icon:"🧵",color:"#f2c9a0"},
+    {id:"p2",store:"s1",cat:"Accessories",name:"Ladies Gele Headwrap",desc:"Pre-folded, easy to wear.",price:6500,stock:10,icon:"👑",color:"#f2b8c6"},
+    {id:"p3",store:"s2",cat:"Bags",name:"Leather Tote Bag",desc:"Hand-stitched genuine leather.",price:28000,stock:5,icon:"👜",color:"#e8c7a8"},
+    {id:"p4",store:"s2",cat:"Shoes",name:"Classic Leather Sandals",desc:"Durable and comfortable.",price:15000,stock:8,icon:"👡",color:"#f0d8b8"}]
+};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => BRAND.currency + (Number(n) || 0).toLocaleString();
+const sname = id => (D.stores.find(s => s.id === id) || {}).name || "";
+const findP = id => D.products.find(p => String(p.id) === String(id));
+const okImg = u => typeof u === "string" && !DEMO && u.startsWith(SUPABASE_URL + "/storage/");
+const pic = (p, big) => okImg(p.img)
+  ? `<img src="${esc(p.img)}" alt="" style="width:100%;height:${big?240:120}px;object-fit:cover;display:block">`
+  : `<div class="pic" style="background:${p.color||"#e8dcc8"};${big?"height:200px;font-size:5rem":""}">${esc(p.icon||"👗")}</div>`;
+
+let D = {cats:[], stores:[], products:[]}, cat = "All", storeF = "All", cart = {}, user = null, my = null, view = "", isAdmin = false;
+const delivery = {name:"", phone:"", address:""};
+
+function note(t){ const n = $("note"); n.textContent = t; n.style.display = "block"; }
+function msg(t){ const m = $("msg"); if(m) m.textContent = t; }
+function paint(){
+  const w = BRAND.name.split(" ");
+  $("logo").innerHTML = w.length > 1 ? esc(w.slice(0,-1).join(" ")) + " <span>" + esc(w.slice(-1)) + "</span>" : "<span>" + esc(BRAND.name) + "</span>";
+  $("tag").textContent = BRAND.tagline; $("sub").textContent = BRAND.sub; $("foot").textContent = BRAND.footer;
+  document.title = BRAND.name; document.documentElement.style.setProperty("--accent", BRAND.accent);
+}
+
+/* ---------- catalogue ---------- */
+async function load(){
+  if(DEMO){ D = DEMO_DATA; return; }
+  const [s, p, c] = await Promise.all([
+    sb.from("stores").select("id,name,area,phone,whatsapp,logo_url,status"),
+    sb.from("products").select("id,store_id,category_id,name,description,price_kobo,stock,images").eq("is_active", true).order("created_at", {ascending:false}),
+    sb.from("categories").select("id,name")
+  ]);
+  D.cats = c.data || [];
+  D.stores = (s.data || []).filter(x => x.status === "approved");
+  D.products = (p.data || []).filter(x => D.stores.some(st => st.id === x.store_id)).map(x => ({
+    id:x.id, store:x.store_id, cat:(D.cats.find(k => k.id === x.category_id)||{}).name || "", name:x.name, desc:x.description,
+    price:x.price_kobo/100, stock:x.stock, img:(x.images||[])[0]
+  }));
+}
+function chips(el, items, cur, fn){
+  $(el).innerHTML = items.map(i => `<button class="chip ${cur===i[0]?'on':''}" data-v="${esc(i[0])}" onclick="${fn}(this.dataset.v)">${esc(i[1])}</button>`).join("");
+}
+function setCat(v){ cat = v; render(); }
+function setStore(v){ storeF = v; render(); }
+function render(){
+  chips("cats", [["All","All"]].concat(D.cats.map(c => [c.name,c.name])), cat, "setCat");
+  chips("storeChips", [["All","All stores"]].concat(D.stores.map(s => [s.id,s.name])), storeF, "setStore");
+  const q = $("q").value.trim().toLowerCase();
+  const list = D.products.filter(p => (cat==="All"||p.cat===cat) && (storeF==="All"||p.store===storeF) && (!q || (p.name+" "+p.cat+" "+sname(p.store)).toLowerCase().includes(q)));
+  $("grid").innerHTML = list.length ? list.map(p => `<div class="card" onclick="showItem('${esc(p.id)}')">${pic(p)}<div class="info"><b>${esc(p.name)}</b><div class="store">${esc(sname(p.store))}</div><div class="price">${p.stock>0?money(p.price):"Sold out"}</div></div></div>`).join("") : "<p class='store'>No items yet.</p>";
+  $("stores").innerHTML = D.stores.map(s => `<div class="st"><b>${esc(s.name)}</b><small>${esc(s.area)}<br>${esc(s.phone)}</small><div class="gap"><button class="chip" data-v="${esc(s.id)}" onclick="setStore(this.dataset.v);scrollTo({top:0,behavior:'smooth'})">View items</button></div></div>`).join("");
+  $("count").textContent = Object.values(cart).reduce((a,b) => a+b, 0);
+}
+
+/* ---------- sheets ---------- */
+function closeSheet(){ $("sheet").classList.remove("open"); view = ""; }
+function openHTML(h, v){ view = v; $("sheetBody").innerHTML = h; $("sheet").classList.add("open"); }
+async function show(v){ openHTML("<p class='store'>Loading…</p>", v); const h = await VIEWS[v](); if(view === v) $("sheetBody").innerHTML = h; }
+function needLogin(t){ return `<h2 style="margin-top:0">Sign in</h2><p class="store">Please sign in to ${t}.</p><button class="btn" onclick="show('account')">Sign in or create account</button>`; }
+function showItem(id){
+  const p = findP(id); if(!p) return;
+  openHTML(`<div style="border-radius:14px;overflow:hidden">${pic(p,true)}</div><h2>${esc(p.name)}</h2><div class="store">${esc(sname(p.store))} · ${esc(p.cat)}</div><p>${esc(p.desc)}</p><div class="price" style="font-size:1.3rem;margin-bottom:12px">${money(p.price)}</div>${p.stock>0?`<button class="btn" onclick="add('${esc(p.id)}');closeSheet()">Add to cart</button>`:"<p class='store'>Sold out</p>"}`, "item");
+}
+
+/* ---------- cart and payment ---------- */
+function add(id){
+  const p = findP(id); if(!p || p.stock <= 0) return;
+  if((cart[id]||0) >= p.stock){ note("Only " + p.stock + " in stock."); return; }
+  cart[id] = (cart[id]||0) + 1; render();
+}
+function change(id, d){
+  const p = findP(id); cart[id] = (cart[id]||0) + d;
+  if(cart[id] <= 0) delete cart[id]; else if(p && cart[id] > p.stock) cart[id] = p.stock;
+  render(); show("cart");
+}
+async function vCart(){
+  const g = {};
+  Object.keys(cart).forEach(id => { const p = findP(id); if(p) (g[p.store] = g[p.store] || []).push([p, cart[id]]); });
+  const sids = Object.keys(g);
+  if(!sids.length) return "<h2 style='margin-top:0'>Your cart</h2><p class='store'>Your cart is empty.</p>";
+  return `<h2 style="margin-top:0">Your cart</h2>
+    <label>Delivery name</label><input value="${esc(delivery.name)}" oninput="delivery.name=this.value">
+    <label>Phone</label><input value="${esc(delivery.phone)}" oninput="delivery.phone=this.value">
+    <label>Delivery address</label><input value="${esc(delivery.address)}" oninput="delivery.address=this.value">
+    <p class="store" id="msg"></p>` + sids.map(sid => {
+    const st = D.stores.find(s => s.id === sid) || {}; let t = 0;
+    const rows = g[sid].map(([p,n]) => { t += p.price*n; return `<div class="line"><div><b>${esc(p.name)}</b><div class="store">${money(p.price)}</div></div><div><button class="chip" onclick="change('${esc(p.id)}',-1)">−</button> ${n} <button class="chip" onclick="change('${esc(p.id)}',1)">+</button></div></div>`; }).join("");
+    const wa = String(st.whatsapp||"").replace(/\D/g,"");
+    return `<div class="st" style="margin-top:12px"><b>${esc(st.name)}</b>${rows}<div class="line"><b>Total</b><b>${money(t)}</b></div>
+      <div class="gap" style="display:block"><button class="btn" onclick="checkout('${esc(sid)}')">Pay ${money(t)} securely</button>${wa?`<p class="store"><a href="https://wa.me/${wa}" target="_blank" rel="noopener">Questions? Chat with the store</a></p>`:""}</div></div>`;
+  }).join("");
+}
+async function fnMsg(r, fb){
+  if(!r.error && r.data && !r.data.error) return null;
+  let m = (r.data && r.data.error) || fb;
+  try{ if(r.error && r.error.context) m = (await r.error.context.json()).error || m; }catch(e){}
+  return m;
+}
+async function checkout(sid){
+  if(DEMO){ msg("Demo mode: add your Supabase keys to enable payments."); return; }
+  if(!user){ show("account"); return; }
+  if(!delivery.name.trim() || !delivery.phone.trim() || !delivery.address.trim()){ msg("Please fill in your delivery details."); return; }
+  const items = Object.keys(cart).filter(id => (findP(id)||{}).store === sid).map(id => ({product_id:id, quantity:cart[id]}));
+  msg("Starting secure payment…");
+  const r = await sb.functions.invoke("create-order", {body:{store_id:sid, items, delivery}});
+  const err = await fnMsg(r, "Could not start payment");
+  if(err){ msg(err); return; }
+  if(!/^https:\/\/checkout\.paystack\.com\//.test(r.data.authorization_url)){ msg("Unexpected payment link."); return; }
+  items.forEach(i => delete cart[i.product_id]);
+  location.href = r.data.authorization_url;
+}
+
+/* ---------- account ---------- */
+async function vAccount(){
+  if(DEMO) return "<h2 style='margin-top:0'>Account</h2><p class='store'>Demo mode. Add your Supabase keys at the top of this file to enable accounts.</p>";
+  if(user) return `<h2 style="margin-top:0">Account</h2><p>Signed in as <b>${esc(user.email)}</b></p><button class="btn alt" onclick="sb.auth.signOut()">Sign out</button>`;
+  return `<h2 style="margin-top:0">Sign in</h2><label>Full name (new accounts)</label><input id="a_name"><label>Email</label><input id="a_email" type="email"><label>Password (8+ characters)</label><input id="a_pw" type="password">
+    <div class="gap"><button class="btn" style="flex:1" onclick="signIn()">Sign in</button><button class="btn alt" style="flex:1" onclick="signUp()">Create account</button></div><p class="store" id="msg"></p>`;
+}
+async function signIn(){ const {error} = await sb.auth.signInWithPassword({email:$("a_email").value.trim(), password:$("a_pw").value}); if(error) msg(error.message); }
+async function signUp(){
+  const {data, error} = await sb.auth.signUp({email:$("a_email").value.trim(), password:$("a_pw").value, options:{data:{full_name:$("a_name").value.trim()}}});
+  if(error) msg(error.message); else if(!data.session) msg("Check your email to confirm your account, then sign in.");
+}
+
+/* ---------- orders ---------- */
+const LBL = {pending_payment:"Awaiting payment", paid:"Paid", processing:"Processing", shipped:"Shipped", delivered:"Delivered", cancelled:"Cancelled", refund_pending:"Refund in progress", refunded:"Refunded"};
+async function loadMy(){
+  if(!user || DEMO){ my = null; return; }
+  const {data} = await sb.from("my_store").select("*").limit(1); my = (data && data[0]) || null;
+}
+async function vOrders(){
+  if(DEMO) return "<h2 style='margin-top:0'>Orders</h2><p class='store'>Demo mode.</p>";
+  if(!user) return needLogin("see your orders");
+  await loadMy();
+  let q = sb.from("orders").select("id,status,total_kobo,created_at,store_id,delivery,order_items(name,quantity)").order("created_at", {ascending:false}).limit(50);
+  q = my ? q.or(`customer_id.eq.${user.id},store_id.eq.${my.id}`) : q.eq("customer_id", user.id);
+  const {data, error} = await q;
+  if(error) return "<p class='store'>Could not load orders.</p>";
+  const rows = (data || []).filter(o => !(my && o.store_id === my.id && ["pending_payment","cancelled"].includes(o.status)));
+  return `<h2 style="margin-top:0">Orders</h2>` + (rows.map(o => {
+    const sell = my && o.store_id === my.id, d = o.delivery || {};
+    let acts = "";
+    if(sell && ["paid","processing","shipped"].includes(o.status)) acts += ["processing","shipped","delivered"].filter(s => s !== o.status).map(s => `<button class="chip" onclick="setStatus('${o.id}','${s}')">Mark ${s}</button>`).join("");
+    if(sell && STORES_CAN_REFUND && ["paid","processing"].includes(o.status)) acts += `<button class="chip" onclick="refundOrder('${o.id}')">Refund</button>`;
+    if(!sell && o.status === "pending_payment") acts += `<button class="chip" onclick="cancelOrder('${o.id}')">Cancel order</button>`;
+    return `<div class="st" style="margin-bottom:10px"><b>${sell?"Sale":"Order"} · ${money(o.total_kobo/100)} <span class="pill">${esc(LBL[o.status]||o.status)}</span></b><small style="display:block">${new Date(o.created_at).toLocaleDateString()} · ${(o.order_items||[]).map(i => esc(i.quantity + " x " + i.name)).join(", ")}</small>${sell ? `<small style="display:block">Deliver to: ${esc(d.name)}, ${esc(d.phone)}, ${esc(d.address)}</small>` : `<small>${esc(sname(o.store_id))}${o.status==="pending_payment"?" · items are held for 15 minutes":""}</small>`}${acts?`<div class="gap">${acts}</div>`:""}</div>`;
+  }).join("") || "<p class='store'>No orders yet.</p>");
+}
+async function setStatus(id, s){ const {error} = await sb.from("orders").update({status:s}).eq("id", id); if(error) note(error.message); show("orders"); }
+async function cancelOrder(id){ const {error} = await sb.rpc("cancel_my_order", {p_order:id}); if(error) note(error.message); await load(); render(); show("orders"); }
+async function refundOrder(id){
+  if(!confirm("Refund this order in full? This cannot be undone.")) return;
+  const r = await sb.functions.invoke("refund-order", {body:{order_id:id}});
+  note(await fnMsg(r, "Refund failed") || "Refund started. It completes when Paystack confirms."); show(view);
+}
+async function loadRole(){
+  if(!user || DEMO) isAdmin = false;
+  else { const {data} = await sb.from("profiles").select("role").eq("id", user.id).maybeSingle(); isAdmin = !!data && data.role === "admin"; }
+  $("admBtn").style.display = isAdmin ? "" : "none";
+}
+async function vAdmin(){
+  if(!isAdmin) return "<p class='store'>Admins only.</p>";
+  const [s, o] = await Promise.all([
+    sb.rpc("admin_list_stores"),
+    sb.from("orders").select("id,status,total_kobo,created_at,store_id,order_items(name,quantity)").in("status", ["paid","processing","shipped","delivered","refund_pending","refunded"]).order("created_at", {ascending:false}).limit(30)
+  ]);
+  if(s.error) return `<p class="store">${esc(s.error.message)}</p>`;
+  const stores = s.data || [], names = {}; stores.forEach(x => names[x.id] = x.name);
+  const pend = stores.filter(x => x.status === "pending").length;
+  const lbl = {approved:"Approve", suspended:"Suspend", pending:"Set pending"};
+  let h = `<h2 style="margin-top:0">Admin</h2><p class="store">${pend} store${pend===1?"":"s"} awaiting approval</p>`;
+  h += stores.map(x => `<div class="st" style="margin-bottom:10px"><b>${esc(x.name)} <span class="pill">${esc(x.status)}</span></b><small style="display:block">${esc(x.area)} · ${esc(x.phone)}<br>${esc(x.owner_email)} · ${x.product_count} products</small><div class="gap">${["approved","suspended","pending"].filter(t => t !== x.status).map(t => `<button class="chip" onclick="setStoreStatus('${x.id}','${t}')">${lbl[t]}</button>`).join("")}</div></div>`).join("") || "<p class='store'>No stores yet.</p>";
+  h += `<h2>Recent orders</h2>` + ((o.data || []).map(r => `<div class="st" style="margin-bottom:10px"><b>${money(r.total_kobo/100)} <span class="pill">${esc(LBL[r.status]||r.status)}</span></b><small style="display:block">${esc(names[r.store_id]||"")} · ${new Date(r.created_at).toLocaleDateString()} · ${(r.order_items||[]).map(i => esc(i.quantity + " x " + i.name)).join(", ")}</small>${["paid","processing","shipped","delivered"].includes(r.status) ? `<div class="gap"><button class="chip" onclick="refundOrder('${r.id}')">Refund</button></div>` : ""}</div>`).join("") || "<p class='store'>No orders yet.</p>");
+  return h;
+}
+async function setStoreStatus(id, st){ const {error} = await sb.rpc("admin_set_store_status", {p_store:id, p_status:st}); if(error) note(error.message); await load(); render(); show("admin"); }
+
+/* ---------- store dashboard ---------- */
+async function vStore(){
+  if(DEMO) return "<h2 style='margin-top:0'>Sell</h2><p class='store'>Demo mode. Add your Supabase keys to enable store accounts.</p>";
+  if(!user) return needLogin("open or manage your store");
+  await loadMy();
+  const form = s => `<label>Store name</label><input id="s_name" value="${esc(s.name)}"><label>Location</label><input id="s_area" value="${esc(s.area)}"><label>Phone</label><input id="s_phone" value="${esc(s.phone)}"><label>WhatsApp (international format, no +)</label><input id="s_wa" value="${esc(s.whatsapp)}"><label>About your store</label><input id="s_desc" value="${esc(s.description)}">`;
+  if(!my) return `<h2 style="margin-top:0">Open your store</h2>${form({})}<div class="gap"><button class="btn" onclick="createStore()">Create store</button></div><p class="store" id="msg">New stores are reviewed before going live.</p>`;
+  let h = `<h2 style="margin-top:0">${esc(my.name)} <span class="pill">${esc(my.status)}</span></h2>${form(my)}<div class="gap"><button class="btn" onclick="saveStore()">Save details</button></div>`;
+  if(my.status !== "approved") return h + `<p class="store" id="msg">Your store is awaiting approval. You can add products and connect payouts once it is approved.</p>`;
+  const {data:ps} = await sb.from("products").select("id,name,price_kobo,stock").eq("store_id", my.id).order("created_at", {ascending:false});
+  h += `<h2>Payouts</h2><label>Bank</label><select id="b_bank">${BANKS.map(b => `<option value="${b[0]}">${esc(b[1])}</option>`).join("")}</select><label>Account number</label><input id="b_acct" inputmode="numeric" maxlength="10"><div class="gap"><button class="btn alt" onclick="connectBank()">Connect payout account</button></div>`;
+  h += `<h2>Your products</h2>` + ((ps||[]).map(p => `<div class="line"><div><b>${esc(p.name)}</b><div class="store">${money(p.price_kobo/100)} · ${p.stock} in stock</div></div><button class="chip" onclick="delProduct('${p.id}')">Delete</button></div>`).join("") || "<p class='store'>No products yet.</p>");
+  h += `<h2>Add a product</h2><label>Name</label><input id="p_name"><label>Price (${esc(BRAND.currency)})</label><input id="p_price" type="number" min="0"><label>Stock</label><input id="p_stock" type="number" min="0" value="1"><label>Category</label><select id="p_cat">${D.cats.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select><label>Description</label><input id="p_desc"><label>Photo (max 5 MB)</label><input id="p_img" type="file" accept="image/*"><div class="gap"><button class="btn" onclick="addProduct()">Add product</button></div>`;
+  return h + `<p class="store" id="msg"></p>`;
+}
+const sf = () => ({name:$("s_name").value.trim(), area:$("s_area").value.trim(), phone:$("s_phone").value.trim(), whatsapp:$("s_wa").value.replace(/\D/g,""), description:$("s_desc").value.trim()});
+async function createStore(){
+  const f = sf(); if(!f.name){ msg("Enter your store name."); return; }
+  const slug = f.name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40) + "-" + Math.random().toString(36).slice(2,6);
+  const {error} = await sb.from("stores").insert(Object.assign({owner_id:user.id, slug}, f));
+  if(error) msg(error.message); else show("store");
+}
+async function saveStore(){ const {error} = await sb.from("stores").update(sf()).eq("id", my.id); msg(error ? error.message : "Saved."); if(!error){ await load(); render(); } }
+async function addProduct(){
+  const name = $("p_name").value.trim(), price = parseFloat($("p_price").value), stock = parseInt($("p_stock").value, 10);
+  if(!name || !(price >= 0) || !(stock >= 0)){ msg("Enter a name, price and stock."); return; }
+  let images = []; const file = $("p_img").files[0];
+  if(file){
+    if(file.size > 5*1024*1024){ msg("Photo is larger than 5 MB."); return; }
+    msg("Uploading photo…");
+    const ext = (file.name.split(".").pop() || "jpg").replace(/\W/g,"").slice(0,5), path = `${my.id}/${Date.now()}.${ext}`;
+    const up = await sb.storage.from("product-images").upload(path, file, {contentType:file.type});
+    if(up.error){ msg("Photo upload failed: " + up.error.message); return; }
+    images = [sb.storage.from("product-images").getPublicUrl(path).data.publicUrl];
+  }
+  const {error} = await sb.from("products").insert({store_id:my.id, category_id:parseInt($("p_cat").value,10)||null, name, description:$("p_desc").value.trim(), price_kobo:Math.round(price*100), stock, images});
+  if(error){ msg("Could not add product: " + error.message); return; }
+  await load(); render(); show("store");
+}
+async function delProduct(id){ const {error} = await sb.from("products").delete().eq("id", id); if(error) note(error.message); await load(); render(); show("store"); }
+async function connectBank(){
+  const acct = $("b_acct").value.trim(); if(!/^\d{10}$/.test(acct)){ msg("Enter a 10-digit account number."); return; }
+  msg("Connecting…");
+  const r = await sb.functions.invoke("create-subaccount", {body:{store_id:my.id, business_name:my.name, bank_code:$("b_bank").value, account_number:acct}});
+  msg(await fnMsg(r, "Could not connect payout account") || "Payout account connected."); $("b_acct").value = "";
+}
+
+const VIEWS = {cart:vCart, account:vAccount, orders:vOrders, store:vStore, admin:vAdmin};
+(async function init(){
+  paint();
+  if(DEMO) note("Demo mode: add your Supabase URL and anon key at the top of this file to go live.");
+  else {
+    const {data} = await sb.auth.getSession(); user = data.session ? data.session.user : null; await loadRole();
+    sb.auth.onAuthStateChange((_e, s) => { user = s ? s.user : null; my = null; setTimeout(async () => { await loadRole(); if(VIEWS[view]) show(view); }, 0); });
+  }
+  await load(); render();
+  if(new URLSearchParams(location.search).has("reference")){ note("Thank you! Your payment is being confirmed. Check Orders for the status."); history.replaceState(null, "", location.pathname); }
+})();
+</script>
+</body>
+</html>
